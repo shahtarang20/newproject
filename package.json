@@ -1,0 +1,15 @@
+{
+  "name": "vastra",
+  "private": true,
+  "version": "0.1.0",
+  "description": "Multi-tenant SaaS: digital catalogue, enquiry and order management for garment and saree shops",
+  "workspaces": ["apps/*", "packages/*"],
+  "scripts": {
+    "dev:api": "npm run dev -w @vastra/api",
+    "dev:web": "npm run dev -w @vastra/web",
+    "build": "npm run build -w @vastra/api && npm run build -w @vastra/web",
+    "seed": "npm run seed -w @vastra/api",
+    "typecheck": "npm run typecheck -w @vastra/shared && npm run typecheck -w @vastra/api && npm run typecheck -w @vastra/web"
+  },
+  "engines": { "node": ">=20" }
+}

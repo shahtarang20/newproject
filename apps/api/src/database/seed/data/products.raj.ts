@@ -1,0 +1,39 @@
+import type { Fabric, Occasion, SareeType, SareeWorkType } from '@vastra/shared';
+import type { ProductSpec, StockMode } from '../types';
+
+interface SOpts { stock?: StockMode; status?: 'DRAFT'; featured?: boolean }
+
+/** Compact saree spec factory. */
+const S = (
+  name: string, cat: string, price: number, mrp: number, type: SareeType, fabric: Fabric, work: SareeWorkType[], occ: Occasion[],
+  colours: string[], border: string, pallu: string, weave: string, tags: string, blurb: string, o: SOpts = {},
+): ProductSpec => ({
+  type: 'SAREE', name, cat, price, mrp, gender: 'WOMEN', fabric, occ, colours, sizes: ['FREE'], sr: [type, work, border, pallu, weave],
+  tags: tags.split(','), blurb, brand: 'Raj Sarees', ...o,
+});
+
+export const RAJ_PRODUCTS: ProductSpec[] = [
+  S('Banarasi Katan Silk Saree', 'banarasi', 6999, 9999, 'BANARASI', 'SILK', ['ZARI', 'HANDWORK'], ['WEDDING', 'FESTIVAL'], ['Maroon', 'Royal Blue', 'Bottle Green'], 'Broad zari border', 'Ornate floral pallu', 'Katan silk handloom', 'banarasi,katan,wedding,diwali,premium', 'Pure katan silk handwoven in Varanasi with real zari motifs.', { featured: true }),
+  S('Banarasi Tissue Silk Saree', 'banarasi', 4999, 7499, 'BANARASI', 'SILK', ['ZARI'], ['PARTY', 'WEDDING'], ['Gold', 'Pink', 'Mint'], 'Scalloped zari border', 'Woven buti pallu', 'Tissue silk', 'banarasi,tissue,party,new-arrival', 'Lightweight tissue silk with a metallic sheen that catches every light.'),
+  S('Banarasi Georgette Handloom Saree', 'banarasi', 3499, 4999, 'BANARASI', 'GEORGETTE', ['ZARI'], ['FESTIVAL', 'PARTY'], ['Rani', 'Teal', 'Peach'], 'Narrow zari border', 'Jaal pallu', 'Georgette handloom', 'banarasi,georgette,festive,diwali', 'Flowing Banarasi georgette that drapes beautifully.'),
+  S('Banarasi Brocade Bridal Saree', 'banarasi', 12999, 17999, 'BANARASI', 'SILK', ['ZARI', 'HANDWORK'], ['WEDDING'], ['Red', 'Wine'], 'Heavy kadhwa border', 'Rich brocade pallu', 'Kadhwa brocade', 'banarasi,brocade,bridal,wedding,premium', 'A heirloom brocade saree woven for the bride.', { stock: 'low', featured: true }),
+  S('Kanjivaram Pure Zari Silk Saree', 'kanjivaram', 11999, 15999, 'KANJIVARAM', 'SILK', ['ZARI'], ['WEDDING', 'TRADITIONAL'], ['Purple', 'Magenta', 'Bottle Green'], 'Contrast temple border', 'Rich zari pallu', 'Pure mulberry silk', 'kanjivaram,pure-zari,wedding,premium', 'Authentic Kanchipuram silk with pure zari and a contrast border.', { featured: true }),
+  S('Kanjivaram Temple Border Silk Saree', 'kanjivaram', 9499, 12999, 'KANJIVARAM', 'SILK', ['ZARI'], ['TRADITIONAL', 'FESTIVAL'], ['Mustard', 'Maroon', 'Teal'], 'Temple gopuram border', 'Plain pallu with zari stripes', 'Pure mulberry silk', 'kanjivaram,temple,festive,diwali', 'Temple border Kanjivaram in classic South Indian colours.'),
+  S('Kanjivaram Peacock Motif Silk Saree', 'kanjivaram', 8499, 11999, 'KANJIVARAM', 'SILK', ['ZARI', 'THREAD'], ['FESTIVAL', 'WEDDING'], ['Royal Blue', 'Turquoise', 'Wine'], 'Peacock motif border', 'Peacock pallu', 'Silk-zari', 'kanjivaram,peacock,wedding', 'Peacock motifs woven across the border and pallu.'),
+  S('Kanjivaram Bridal Wedding Silk Saree', 'kanjivaram', 15999, 21999, 'KANJIVARAM', 'SILK', ['ZARI', 'HANDWORK'], ['WEDDING'], ['Red', 'Maroon', 'Gold'], 'Double-sided zari border', 'Grand bridal pallu', 'Pure silk with gold zari', 'kanjivaram,bridal,wedding,premium', 'Our grandest bridal Kanjivaram, finished with gold-toned zari.', { stock: 'low', featured: true }),
+  S('Mysore Crepe Silk Saree', 'silk-sarees', 5499, 7499, 'SILK', 'SILK', ['ZARI'], ['OFFICE', 'FESTIVAL'], ['Wine', 'Navy', 'Pink'], 'Zari line border', 'Plain with zari tassels', 'Crepe silk', 'mysore,crepe,silk,new-arrival', 'Fluid crepe silk from Mysore with a subtle sheen.'),
+  S('Tussar Silk Handpainted Saree', 'silk-sarees', 4499, 5999, 'SILK', 'SILK', ['HANDWORK', 'PRINTED'], ['FESTIVAL', 'PARTY'], ['Beige', 'Rust', 'Olive'], 'Plain border', 'Hand-painted pallu', 'Tussar silk', 'tussar,handpainted,silk', 'Earthy tussar silk with hand-painted floral pallu.'),
+  S('Uppada Pattu Silk Saree', 'silk-sarees', 7499, 9999, 'SILK', 'SILK', ['ZARI'], ['WEDDING', 'TRADITIONAL'], ['Pink', 'Lavender', 'Mustard'], 'Jamdani border', 'Jamdani pallu', 'Uppada jamdani', 'uppada,pattu,wedding,premium', 'Featherlight Uppada pattu with jamdani-style woven motifs.', { stock: 'low' }),
+  S('Chanderi Cotton Silk Saree', 'cotton-sarees', 1999, 2799, 'COTTON', 'COTTON', ['ZARI'], ['OFFICE', 'FESTIVAL'], ['Peach', 'Mint', 'Ivory'], 'Gold zari border', 'Buti pallu', 'Chanderi handloom', 'chanderi,cotton,office,new-arrival', 'Translucent Chanderi cotton-silk with gold buti.'),
+  S('Kota Doria Cotton Saree', 'cotton-sarees', 1499, 2199, 'COTTON', 'COTTON', ['THREAD'], ['CASUAL', 'OFFICE'], ['Turquoise', 'Mustard', 'Pink'], 'Contrast border', 'Check pallu', 'Kota Doria', 'kota,doria,summer,cotton', 'Breathable Kota Doria checks, ideal for summers.', { stock: 'high' }),
+  S('Bengal Handloom Tant Saree', 'cotton-sarees', 999, 1499, 'COTTON', 'COTTON', ['THREAD'], ['CASUAL'], ['Red', 'White', 'Indigo'], 'Red woven border', 'Striped pallu', 'Tant handloom', 'tant,bengal,handloom', 'Crisp Bengal Tant cotton, a daily-wear favourite.', { stock: 'out' }),
+  S('Mulmul Cotton Block Print Saree', 'cotton-sarees', 799, 1199, 'PRINTED', 'COTTON', ['PRINTED'], ['CASUAL'], ['Indigo', 'Rust'], 'Block print border', 'Block print pallu', 'Mulmul cotton', 'mulmul,block-print', 'Soft mulmul with hand block prints.', { status: 'DRAFT' }),
+  S('Printed Georgette Saree', 'georgette-chiffon', 1299, 1999, 'GEORGETTE', 'GEORGETTE', ['PRINTED'], ['CASUAL', 'PARTY'], ['Red', 'Teal', 'Purple'], 'Lace border', 'Printed pallu', 'Georgette', 'printed,georgette,casual,new-arrival', 'Easy-care printed georgette with a lace border.', { stock: 'high' }),
+  S('Chiffon Embroidered Saree', 'georgette-chiffon', 2499, 3499, 'CHIFFON', 'CHIFFON', ['EMBROIDERY'], ['PARTY', 'FESTIVAL'], ['Mint', 'Lavender', 'Peach'], 'Embroidered border', 'Embroidered pallu', 'Chiffon', 'chiffon,embroidered,party,diwali', 'Feather-light chiffon with delicate thread embroidery.'),
+  S('Sequin Georgette Party Saree', 'party-wear-georgette', 3999, 5999, 'GEORGETTE', 'GEORGETTE', ['STONE', 'EMBROIDERY'], ['PARTY'], ['Wine', 'Black', 'Gold'], 'Sequin border', 'Sequin pallu', 'Georgette', 'sequin,party,cocktail,new-arrival', 'Sequined georgette that sparkles from cocktail to midnight.'),
+  S('Floral Chiffon Saree', 'party-wear-georgette', 1799, 2599, 'CHIFFON', 'CHIFFON', ['PRINTED'], ['PARTY', 'CASUAL'], ['Pink', 'Mint', 'Orange'], 'Satin border', 'Floral pallu', 'Chiffon', 'floral,chiffon,summer', 'Romantic floral chiffon for brunches and day events.'),
+  S('Organza Floral Saree', 'organza-sarees', 3299, 4799, 'ORGANZA', 'OTHER', ['EMBROIDERY'], ['PARTY', 'FESTIVAL'], ['Peach', 'Lavender', 'Mint'], 'Scalloped edge', 'Floral embroidered pallu', 'Organza', 'organza,floral,festive,diwali', 'Crisp organza with floral embroidery all over.'),
+  S('Organza Thread Embroidery Saree', 'organza-sarees', 4999, 6999, 'ORGANZA', 'OTHER', ['THREAD', 'MIRROR'], ['WEDDING', 'PARTY'], ['Pink', 'Ivory', 'Turquoise'], 'Mirror border', 'Thread embroidered pallu', 'Organza', 'organza,mirror,wedding', 'Organza with thread and mirror work for festive evenings.'),
+  S('Ruffle Designer Saree', 'designer-organza', 5999, 8499, 'DESIGNER', 'GEORGETTE', ['EMBROIDERY', 'STONE'], ['PARTY', 'WEDDING'], ['Rani', 'Wine', 'Teal'], 'Ruffle border', 'Embellished pallu', 'Georgette', 'ruffle,designer,wedding,premium', 'Modern ruffle drape with stone embellishments.', { featured: true }),
+  S('Cutdana Designer Saree', 'designer-organza', 8999, 12499, 'DESIGNER', 'GEORGETTE', ['HANDWORK', 'STONE'], ['WEDDING'], ['Gold', 'Maroon'], 'Cutdana border', 'Cutdana pallu', 'Georgette', 'cutdana,designer,premium', 'Hand-set cutdana on georgette for statement occasions.', { status: 'DRAFT' }),
+];
