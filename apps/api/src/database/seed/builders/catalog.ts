@@ -8,7 +8,8 @@ import type { IProductVariant } from '@/database/models/product-variant.model';
 import { hexOf } from '../data/products';
 import { DAY_MS, type Rng } from '../prng';
 import type { BuiltProduct, ProductSpec, ShopContext } from '../types';
-import { imageUrl, newId, pad, rp } from '../util';
+import { writeCategoryArt, writeProductArt, type ProductArt } from '../art';
+import { imageUrl, newId, pad, rp, useExternalImages } from '../util';
 
 export interface CatalogPlan {
   categories: ICategory[];
@@ -57,17 +58,20 @@ function buildProduct(ctx: ShopContext, spec: ProductSpec, index: number, rng: R
   const createdAt = new Date(now.getTime() - (70 + ((index * 7) % 16)) * DAY_MS);
   const skuBase = `${def.prefix}-${pad(index + 1, 3)}`;
 
-  // Media (placeholder URLs only; nothing is uploaded).
+  // Media: generated garment illustrations by default (files written to uploads/seed), or external placeholders when SEED_IMAGE_BASE is set.
+  const art: ProductArt | null = useExternalImages()
+    ? null
+    : writeProductArt({ shopSlug: def.slug, productSlug: slug, name: spec.name, type: spec.type, categoryText: def.categories.find((c) => c.slug === spec.cat)?.name ?? spec.cat, colours: spec.colours });
   const nImages = rng.int(2, 3);
   const refs: IProductMediaRef[] = [];
   const mediaIds: Types.ObjectId[] = [];
   for (let n = 1; n <= nImages; n++) {
     const mediaId = newId();
     const seedKey = `${def.slug}-${slug}-${n}`;
-    const url = imageUrl(seedKey, 800, 1000);
-    const thumbUrl = imageUrl(seedKey, 320, 400);
+    const url = art ? art.gallery[n - 1] : imageUrl(seedKey, 800, 1000);
+    const thumbUrl = art ? url : imageUrl(seedKey, 320, 400);
     media.push({
-      _id: mediaId, shopId, productId, kind: 'IMAGE', url, thumbUrl, key: `seed/${def.slug}/${slug}-${n}`, provider: 'external', mimeType: 'image/jpeg',
+      _id: mediaId, shopId, productId, kind: 'IMAGE', url, thumbUrl, key: `seed/${def.slug}/${slug}-${n}`, provider: 'external', mimeType: art ? 'image/svg+xml' : 'image/jpeg',
       sizeBytes: rng.int(90_000, 180_000), width: 800, height: 1000, altText: `${spec.name} - view ${n}`, isPrimary: n === 1, sortOrder: n - 1,
       uploadedBy: ownerId, createdAt, updatedAt: createdAt,
     });
@@ -109,7 +113,7 @@ function buildProduct(ctx: ShopContext, spec: ProductSpec, index: number, rng: R
       variants.push({
         _id: newId(), shopId, productId, sku: `${skuBase}-C${ci + 1}-${size.replace(/[^A-Za-z0-9]/g, '')}`, colour: { name: colour, hex: hexOf(colour) }, size,
         sellingPriceMinor: selling, mrpMinor: rp(spec.mrp) + extra, costPriceMinor: Math.round((selling * 0.6) / 100) * 100, stock: stockFor(spec, rng),
-        imageUrl: refs[0].url, imageMediaId: refs[0].mediaId, isActive: true, createdAt, updatedAt: createdAt,
+        imageUrl: art?.colourUrls[colour] ?? refs[0].url, imageMediaId: refs[0].mediaId, isActive: true, createdAt, updatedAt: createdAt,
       });
     });
   });
@@ -126,7 +130,7 @@ export function planCatalog(ctx: ShopContext, specs: ProductSpec[], rng: Rng, no
   def.categories.forEach((c) => categoryIdBySlug.set(c.slug, newId()));
   const categories: ICategory[] = def.categories.map((c, i) => ({
     _id: categoryIdBySlug.get(c.slug) as Types.ObjectId, shopId, name: c.name, slug: c.slug, parentId: c.parent ? (categoryIdBySlug.get(c.parent) ?? null) : null,
-    description: c.description, imageUrl: imageUrl(`${def.slug}-cat-${c.slug}`, 600, 400), sortOrder: i, isActive: true, createdAt: created, updatedAt: created,
+    description: c.description, imageUrl: useExternalImages() ? imageUrl(`${def.slug}-cat-${c.slug}`, 600, 400) : writeCategoryArt(def.slug, c.slug, c.name, def.primaryColor, i), sortOrder: i, isActive: true, createdAt: created, updatedAt: created,
   }));
 
   const media: IMedia[] = [];

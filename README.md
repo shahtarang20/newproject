@@ -56,7 +56,7 @@ Web: `VITE_API_URL` (defaults to same-origin `/api`). Seed-only: `SEED_*_EMAIL`,
 - Credentials come only from env (`SEED_SUPER_ADMIN_*`, `SEED_SHOP_OWNER_*`, `SEED_CUSTOMER_*`). An empty password is replaced by a random one that is printed once at the end of the run. All three owners share the owner password.
 - Idempotent: users and shops are upserted on email/slug; each run regenerates the tenant data of the three seeded shops only. Data is deterministic (seeded PRNG), relative to "now".
 - `npm run seed -- --reset` first drops the seeded shops, their staff/subscriptions/data and owner accounts. `NODE_ENV=production` is refused unless `--force` is passed.
-- Images are placeholders (`SEED_IMAGE_BASE`, default `https://picsum.photos/seed`, URLs `<base>/<shop>-<product>-<n>/800/1000`), stored as Media with `provider: 'external'`; nothing is uploaded.
+- Images are generated garment illustrations (shirts, kurtas, sarees, lehengas… coloured per variant), written to `apps/api/uploads/seed/<shop>/` by the seed and served at `/uploads/seed/...`. They are stored as Media with `provider: 'external'`, so deleting a seeded product never touches storage. Set `SEED_IMAGE_BASE` (e.g. `https://picsum.photos/seed`) to use remote placeholder photos instead.
 - Seeded orders include some ONLINE-paid history; online checkout itself stays disabled until a payment provider is configured. Raw analytics events are a sample; rollups are the source for dashboards.
 
 ## The 7 storefront templates

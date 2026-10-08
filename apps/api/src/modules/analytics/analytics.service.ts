@@ -8,6 +8,7 @@ import { addDays, dayKey, startOfUtcDay } from '@/common/utils/date';
 import { buildMeta } from '@/common/pagination';
 import { AnalyticsDaily, AnalyticsEvent, Category, Customer, Enquiry, Order, Product, ProductVariant, Shop } from '@/database/models';
 import type { ProductsQuery, RangeQuery, SalesQuery } from './analytics.schemas';
+import { getStockHealth } from '@/modules/inventory/inventory.query.service';
 
 // ------------------------------------------------------------------ recording
 export interface RecordEventInput {
@@ -180,7 +181,7 @@ export async function getDashboard(shopId: string, range: '7d' | '30d' | '90d') 
   const shopDoc = await Shop.findById(shop).select('notificationSettings.lowStockThreshold currency').lean();
   const lowThreshold = shopDoc?.notificationSettings?.lowStockThreshold ?? DEFAULT_LOW_STOCK_THRESHOLD;
 
-  const [today, current, previous, pending, customers, products, lowStock, outOfStock, series, topProducts, recentOrders, recentEnquiries, topCategories] =
+  const [today, current, previous, pending, customers, products, stockHealth, series, topProducts, recentOrders, recentEnquiries, topCategories] =
     await Promise.all([
       orderTotals(shop, todayStart, tomorrow),
       orderTotals(shop, r.from, r.to),
@@ -188,14 +189,8 @@ export async function getDashboard(shopId: string, range: '7d' | '30d' | '90d') 
       Order.countDocuments({ shopId: shop, status: 'PENDING' }),
       Customer.countDocuments({ shopId: shop }),
       Product.countDocuments({ shopId: shop, deletedAt: null }),
-      // "Low" = still in stock but at/below its threshold, matching the Inventory page; out-of-stock is counted separately.
-      ProductVariant.countDocuments({
-        shopId: shop,
-        isActive: true,
-        stock: { $gt: 0 },
-        $expr: { $lte: ['$stock', { $ifNull: ['$lowStockThreshold', lowThreshold] }] },
-      }),
-      ProductVariant.countDocuments({ shopId: shop, isActive: true, stock: { $lte: 0 } }),
+      // Same pipeline as the Inventory page, so "low" (variant -> product -> shop threshold) matches there exactly.
+      getStockHealth(shop, lowThreshold),
       dailyOrderSeries(shop, r),
       Order.aggregate<ProductAgg>([...productSalesPipeline(shop, r.from, r.to), { $sort: { revenueMinor: -1 } }, { $limit: 5 }]),
       Order.find({ shopId: shop })
@@ -221,8 +216,8 @@ export async function getDashboard(shopId: string, range: '7d' | '30d' | '90d') 
     pendingOrders: pending,
     totalCustomers: customers,
     productsCount: products,
-    lowStockCount: lowStock,
-    outOfStockCount: outOfStock,
+    lowStockCount: stockHealth.lowStock,
+    outOfStockCount: stockHealth.outOfStock,
     revenue: {
       totalMinor: current.revenueMinor,
       previousMinor: previous.revenueMinor,

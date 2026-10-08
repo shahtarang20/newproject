@@ -12,7 +12,8 @@ import { ensureDefaultPlan } from '@/modules/subscriptions/plan.bootstrap';
 import { PLAN_SEEDS } from '@/modules/subscriptions/plan.defaults';
 import { hashPassword, normaliseEmail } from '@/modules/users/user.service';
 import type { ShopDef } from '../types';
-import { imageUrl } from '../util';
+import { writeShopCover, writeShopLogo } from '../art';
+import { imageUrl, useExternalImages } from '../util';
 
 export interface Credential { label: string; email: string; password: string; generated: boolean }
 
@@ -80,7 +81,8 @@ export async function upsertShopWithSubscription(def: ShopDef, ownerId: Types.Ob
   const periodStart = startOfUtcDay(addDays(now, -12));
   const fields = {
     name: def.name, tagline: def.tagline, description: def.description, businessType: def.businessType, orderPrefix: def.prefix, ownerId, status: 'ACTIVE',
-    logoUrl: imageUrl(`${def.slug}-logo`, 256, 256), coverUrl: imageUrl(`${def.slug}-cover`, 1600, 600),
+    logoUrl: useExternalImages() ? imageUrl(`${def.slug}-logo`, 256, 256) : writeShopLogo(def.slug, def.name, def.primaryColor),
+    coverUrl: useExternalImages() ? imageUrl(`${def.slug}-cover`, 1600, 600) : writeShopCover(def.slug, def.name, def.primaryColor),
     contact: { phone: def.contactPhone, email: def.contactEmail, whatsapp: def.contactPhone },
     address: { ...def.address, country: 'IN' },
     socials: { instagram: def.instagram },

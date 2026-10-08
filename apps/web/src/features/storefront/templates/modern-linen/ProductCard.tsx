@@ -35,7 +35,7 @@ export default function ProductCard({ product, shop, onQuickAdd, priority }: Pro
             </div>
           )}
           {product.offerBadge && (
-            <span className="absolute left-2.5 top-2.5 rounded-full bg-[var(--sf-fg)] px-2.5 py-1 text-[10px] font-medium uppercase tracking-[0.14em] text-[var(--sf-bg)]">
+            <span className={`absolute left-2.5 max-w-[calc(100%-1.25rem)] truncate rounded-full bg-[var(--sf-fg)] px-2.5 py-1 text-[10px] font-medium uppercase tracking-[0.14em] text-[var(--sf-bg)] ${product.inStock ? 'bottom-2.5' : 'bottom-10'}`}>
               {product.offerBadge}
             </span>
           )}

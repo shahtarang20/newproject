@@ -1,9 +1,11 @@
 import { Types } from 'mongoose';
 
-export const DEFAULT_IMAGE_BASE = 'https://picsum.photos/seed';
-
-/** Placeholder image source (never copyrighted assets); configurable via SEED_IMAGE_BASE. */
-export const imageBase = (): string => (process.env.SEED_IMAGE_BASE?.trim() || DEFAULT_IMAGE_BASE).replace(/\/+$/, '');
+/**
+ * By default the seed draws its own garment illustrations (see ./art) — no network, no copyrighted assets.
+ * Set SEED_IMAGE_BASE (e.g. https://picsum.photos/seed) to use an external placeholder host instead.
+ */
+export const imageBase = (): string => (process.env.SEED_IMAGE_BASE?.trim() ?? '').replace(/\/+$/, '');
+export const useExternalImages = (): boolean => imageBase() !== '';
 
 export const imageUrl = (seedKey: string, w: number, h: number): string => `${imageBase()}/${seedKey}/${w}/${h}`;
 

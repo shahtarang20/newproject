@@ -46,6 +46,20 @@ function basePipeline(shopId: Types.ObjectId, shopThreshold: number, extraMatch:
   ];
 }
 
+/**
+ * Low / out-of-stock variant counts using the exact same pipeline as the Inventory page (live products only,
+ * threshold resolved as variant -> product -> shop). The dashboard calls this so both screens always agree.
+ */
+export async function getStockHealth(shopId: Types.ObjectId | string, shopThreshold: number): Promise<{ lowStock: number; outOfStock: number }> {
+  const sid = typeof shopId === 'string' ? new Types.ObjectId(shopId) : shopId;
+  const rows = await ProductVariant.aggregate<{ _id: 'LOW' | 'OUT' | 'OK'; n: number }>([
+    ...basePipeline(sid, shopThreshold),
+    { $group: { _id: '$status', n: { $sum: 1 } } },
+  ]);
+  const count = (status: 'LOW' | 'OUT'): number => rows.find((r) => r._id === status)?.n ?? 0;
+  return { lowStock: count('LOW'), outOfStock: count('OUT') };
+}
+
 export async function listInventory(shopId: string, q: InventoryListQuery): Promise<{ rows: InventoryRow[]; summary: InventorySummary; meta: ReturnType<typeof buildMeta> }> {
   const sid = new Types.ObjectId(shopId);
   const shop = await Shop.findById(sid).select('notificationSettings').lean();

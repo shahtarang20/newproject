@@ -26,7 +26,11 @@ export function ProductCard({ product: p, shop, onQuickAdd, priority }: ProductC
           {price.discountPercent ? (
             <span className="absolute left-0 top-3 bg-[var(--sf-secondary)] px-2.5 py-1 font-display text-[10px] uppercase tracking-[0.15em] text-white">{price.discountPercent}% off</span>
           ) : null}
-          {p.offerBadge && <span className="absolute right-0 top-3 bg-[var(--sf-primary)] px-2.5 py-1 font-display text-[10px] uppercase tracking-[0.15em] text-[var(--sf-accent)]">{p.offerBadge}</span>}
+          {p.offerBadge && (
+            <span className={cn('absolute left-0 max-w-[72%] bg-[var(--sf-primary)] px-2.5 py-1 font-display text-[10px] uppercase leading-tight tracking-[0.15em] text-[var(--sf-accent)]', price.discountPercent ? 'top-10' : 'top-3')}>
+              {p.offerBadge}
+            </span>
+          )}
           {sold && <span className="absolute inset-x-0 bottom-0 bg-[var(--sf-primary)]/90 py-2 font-display text-[11px] uppercase tracking-[0.3em] text-[var(--sf-accent)]">Sold out</span>}
         </div>
         <div className="px-1 pt-4">
